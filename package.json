@@ -1,12 +1,12 @@
 {
-    "name": "com.itisnotonlyme.nombre",
+    "name": "com.itisnotonlyme.inverse-kinematics",
     "version": "1.0.0",
-    "displayName": "Nombre Lindo",
-    "description": "Descripcion linda",
+    "displayName": "Inverse Kinematics",
+    "description": "Una forma generica de crear uniones y poder agregar a un sistema para resolverlo",
     "unity": "2020.3",
     "keywords": [
-      "Key", 
-      "Words"
+      "Inverse", 
+      "Kinematics"
     ],
     "author": {
       "name": "Juan Ignacio Biancuzzo",
