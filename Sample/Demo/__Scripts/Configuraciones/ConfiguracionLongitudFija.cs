@@ -2,23 +2,23 @@
 
 namespace ItIsNotOnlyMe.InverseKinematics
 {
-    public class ConfiguracionLongitudFija : Configuracion<float>
+    public class ConfiguracionLongitudFija : Configuracion
     {
         private static int _cantidadDeVariables = 0;
 
         private float _longitud;
 
-        public ConfiguracionLongitudFija(float longitud, ITransformacion<float> transformacion)
-            : base(transformacion, _cantidadDeVariables)
+        public ConfiguracionLongitudFija(float longitud)
+            : base(_cantidadDeVariables)
         {
             _longitud = longitud;
         }
 
         protected override float this[int i] { get => throw new ArgumentOutOfRangeException(); set => throw new ArgumentOutOfRangeException(); }
 
-        public override void ActualizarEstado(ITransformacion<float> transformacion)
+        public override IValor Transformar(IValor valor)
         {
-            transformacion.ActualizarEstado(_longitud);
+            return (valor as IValorVector).Extender(_longitud);
         }
     }
 }

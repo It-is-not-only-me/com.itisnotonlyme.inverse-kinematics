@@ -16,26 +16,10 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         public float Evaluar()
         {
-            IValor valorObtenido = Funcion(_nodoBase, _valorInicial);
+            IValor valorObtenido = InverseKinematicSolver.Funcion(_nodoBase, _valorInicial);
             IValor diferencia = _valorObjetivo.Sumar(valorObtenido.Multiplicar(-1f));
 
             return diferencia.Modulo();
-        }
-
-        private IValor Funcion(INodo nodoBase, IValor valorInicial)
-        {
-            IValor valorResultado = valorInicial;
-
-            foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
-                valorResultado = nodoActual.Transformar(valorResultado);
-
-            return valorResultado;
-        }
-
-        private static IEnumerable<INodo> CaminoDeNodos(INodo nodoBase)
-        {
-            for (INodo nodoActual = nodoBase; nodoActual != null; nodoActual = nodoActual.NodoSiguiente)
-                yield return nodoActual;
         }
     }
 }

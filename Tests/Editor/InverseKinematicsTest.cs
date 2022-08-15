@@ -1,94 +1,117 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
 using UnityEngine.TestTools;
 using ItIsNotOnlyMe.InverseKinematics;
-
-public interface IValorPrueba : IValor
-{
-    public IValor Extender(float distancia);
-
-    public IValor Rotar(float angulo);
-}
-
-public class ValorPrueba : IValorPrueba
-{
-    private Vector2 _posicion;
-    private float _rotacion;
-
-    public ValorPrueba(Vector2 posicion, float rotacion)
-    {
-        Set(posicion, rotacion);
-    }
-
-    public void Set(Vector2 posicion, float rotacion)
-    {
-        _posicion = posicion;
-        _rotacion = rotacion;
-    }
-
-    public float Modulo() => _posicion.magnitude;
-
-    public IValor Multiplicar(float valor) => new ValorPrueba(_posicion * valor, _rotacion);
-
-    public IValor Sumar(IValor valor)
-    {
-        ValorPrueba valorPrueba = valor as ValorPrueba;
-        return new ValorPrueba(_posicion + valorPrueba._posicion, _rotacion + valorPrueba._rotacion);
-    }
-
-    public IValor Extender(float distancia)
-    {
-        float radianes = _rotacion * Mathf.Deg2Rad;
-        Vector2 direccion = new Vector2(Mathf.Cos(radianes), Mathf.Sin(radianes));
-
-        return new ValorPrueba(_posicion + direccion * distancia, _rotacion);
-    }
-
-    public IValor Rotar(float angulo)
-    {
-        return new ValorPrueba(_posicion, _rotacion + angulo);
-    }
-}
-
-public class TransformacionRotacionPrueba : ITransformacion<float>
-{
-    private float _rotacion;
-
-    public void ActualizarEstado(float rotacion)
-    {
-        _rotacion = rotacion;
-    }
-
-    public IValor Transformar(IValor valor)
-    {
-        IValorPrueba valorPrueba = valor as IValorPrueba;
-        return valorPrueba.Rotar(_rotacion);
-    }
-}
-
-public class TransformacionExtenderPrueba : ITransformacion<float>
-{
-    private float _distancia;
-
-    public void ActualizarEstado(float distancia)
-    {
-        _distancia = distancia;
-    }
-
-    public IValor Transformar(IValor valor)
-    {
-        IValorPrueba valorPrueba = valor as IValorPrueba;
-        return valorPrueba.Extender(_distancia);
-    }
-}
+using UnityEngine;
 
 public class InverseKinematicsTest
 {
-    [Test]
-    public void Test01()
+    private float _margenDeError = 0.0001f;
+    private int _cantidadIteraciones = 10;
+    private float _perturbacion = 0.01f;
+    private float _multiplicador = 5f;
+
+    private IConfiguracion[] CrearConfiguraciones(IConfiguracion c1, IConfiguracion c2 = null, IConfiguracion c3 = null)
     {
- 
+        int cantidadDeConfiguraciones = 1;
+        if (c2 != null) cantidadDeConfiguraciones++;
+        if (c3 != null) cantidadDeConfiguraciones++;
+
+        IConfiguracion[] configuraciones = new IConfiguracion[cantidadDeConfiguraciones];
+        configuraciones[0] = c1;
+        if (c2 != null) configuraciones[1] = c2;
+        if (c3 != null) configuraciones[2] = c3;
+
+        return configuraciones;
+    }
+
+    private bool VectoresIguales(Vector2 primero, Vector2 segundo)
+    {
+        bool sonIguales = true;
+        for (int i = 0; i < 2; i++)
+            sonIguales &= primero[i] + _margenDeError > segundo[i] && primero[i] - _margenDeError < segundo[i];
+        return sonIguales;
+    }
+
+    [Test]
+    public void Test01ModeloEnPosicionAcetableNoSeModifica()
+    {
+        ConfiguracionDistanciaFijaPrueba configuracionLineal = new ConfiguracionDistanciaFijaPrueba(1f);
+        INodo nodoFinal = new Nodo(CrearConfiguraciones(configuracionLineal));
+
+        ConfiguracionRotacionPrueba configuracionRotacion = new ConfiguracionRotacionPrueba(0f);
+        INodo nodoBase = new Nodo(CrearConfiguraciones(configuracionRotacion), nodoFinal);
+
+        IValor valorInicial = new ValorPrueba(Vector2.zero, 0f);
+        IValor valorFinal = new ValorPrueba(Vector2.right, 0f);
+
+        InverseKinematicSolver.Aplicar(nodoBase, valorInicial, valorFinal, _perturbacion, _multiplicador, _cantidadIteraciones, _margenDeError);
+
+        Assert.AreEqual(1f, configuracionLineal.Longitud);
+        Assert.AreEqual(0f, configuracionRotacion.Rotacion);
+
+        IValor valorResultado = InverseKinematicSolver.Funcion(nodoBase, valorInicial);
+        Assert.IsTrue(VectoresIguales(Vector2.right, (valorResultado as ValorPrueba).Posicion));
+    }
+
+    [Test]
+    public void Test02ModeloEnPosicionAceptablePeroIntercambiadoDeOrdenNoSeModifica()
+    {
+        ConfiguracionRotacionPrueba configuracionRotacion = new ConfiguracionRotacionPrueba(0f);
+        INodo nodoFinal = new Nodo(CrearConfiguraciones(configuracionRotacion));
+
+        ConfiguracionDistanciaFijaPrueba configuracionLineal = new ConfiguracionDistanciaFijaPrueba(1f);
+        INodo nodoBase = new Nodo(CrearConfiguraciones(configuracionLineal), nodoFinal);
+
+        IValor valorInicial = new ValorPrueba(Vector2.zero);
+        IValor valorFinal = new ValorPrueba(Vector2.right);
+
+        InverseKinematicSolver.Aplicar(nodoBase, valorInicial, valorFinal, _perturbacion, _multiplicador, _cantidadIteraciones, _margenDeError);
+
+        Assert.AreEqual(1f, configuracionLineal.Longitud);
+        Assert.AreEqual(0f, configuracionRotacion.Rotacion);
+
+        IValor valorResultado = InverseKinematicSolver.Funcion(nodoBase, valorInicial);
+        Assert.IsTrue(VectoresIguales(Vector2.right, (valorResultado as ValorPrueba).Posicion));
+    }
+
+    [Test]
+    public void Test03ModeloEnPosicionAceptableConOtraPosicionFinal()
+    {
+        ConfiguracionDistanciaFijaPrueba configuracionLineal = new ConfiguracionDistanciaFijaPrueba(1f);
+        INodo nodoFinal = new Nodo(CrearConfiguraciones(configuracionLineal));
+
+        ConfiguracionRotacionPrueba configuracionRotacion = new ConfiguracionRotacionPrueba(90f);
+        INodo nodoBase = new Nodo(CrearConfiguraciones(configuracionRotacion), nodoFinal);
+
+        IValor valorInicial = new ValorPrueba(Vector2.zero, 0f);
+        IValor valorFinal = new ValorPrueba(Vector2.up, 0f);
+
+        InverseKinematicSolver.Aplicar(nodoBase, valorInicial, valorFinal, _perturbacion, _multiplicador, _cantidadIteraciones, _margenDeError);
+
+        Assert.AreEqual(1f, configuracionLineal.Longitud);
+        Assert.AreEqual(90f, configuracionRotacion.Rotacion);
+
+        IValor valorResultado = InverseKinematicSolver.Funcion(nodoBase, valorInicial);
+        Assert.IsTrue(VectoresIguales(Vector2.up, (valorResultado as ValorPrueba).Posicion));
+    }
+
+    [Test]
+    public void Test04ModeloEnLaMismaConfiguracionLograRotarParaLlegarAPosicionDeseada()
+    {
+        ConfiguracionDistanciaFijaPrueba configuracionLineal = new ConfiguracionDistanciaFijaPrueba(1f);
+        INodo nodoFinal = new Nodo(CrearConfiguraciones(configuracionLineal));
+
+        ConfiguracionRotacionPrueba configuracionRotacion = new ConfiguracionRotacionPrueba(90f);
+        INodo nodoBase = new Nodo(CrearConfiguraciones(configuracionRotacion), nodoFinal);
+
+        IValor valorInicial = new ValorPrueba(Vector2.zero);
+        IValor valorFinal = new ValorPrueba(Vector2.right);
+
+        InverseKinematicSolver.Aplicar(nodoBase, valorInicial, valorFinal, _perturbacion, _multiplicador, _cantidadIteraciones, _margenDeError);
+
+        Assert.AreEqual(1f, configuracionLineal.Longitud);
+        Assert.AreEqual(0f, configuracionRotacion.Rotacion);
     }
 }

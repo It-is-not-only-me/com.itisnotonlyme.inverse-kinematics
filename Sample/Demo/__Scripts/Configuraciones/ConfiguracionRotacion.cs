@@ -3,23 +3,23 @@ using UnityEngine;
 
 namespace ItIsNotOnlyMe.InverseKinematics
 {
-    public class ConfiguracionRotacion : Configuracion<Vector3>
+    public class ConfiguracionRotacion : Configuracion
     {
         private static int _cantidadDeVariables = 3;
 
         private Vector3 _direccion;
 
-        public ConfiguracionRotacion(Vector3 direccionInicial, ITransformacion<Vector3> transformacion) 
-            : base(transformacion, _cantidadDeVariables)
+        public ConfiguracionRotacion(Vector3 direccionInicial) 
+            : base(_cantidadDeVariables)
         {
             _direccion = direccionInicial;
         }
 
         protected override float this[int i] { get => _direccion[i]; set => _direccion[i] = value; }
 
-        public override void ActualizarEstado(ITransformacion<Vector3> transformacion)
+        public override IValor Transformar(IValor valor)
         {
-            transformacion.ActualizarEstado(_direccion);
+            return (valor as IValorVector).Rotar(_direccion);
         }
     }
 }

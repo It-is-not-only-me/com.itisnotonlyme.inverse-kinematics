@@ -12,18 +12,28 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
             float resultadoAnterior = funcionAMinimizar.Evaluar();
 
+            if (resultadoAnterior < errorMinimo)
+                return;
+
             Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
 
             float resultadoActual = funcionAMinimizar.Evaluar();
+            float errorActual = CalculoDeError(resultadoAnterior, resultadoActual);
+            Debug.Log(errorActual);
 
-            for (int iteracion = 1; iteracion < cantidadIteraciones && CalculoDeError(resultadoAnterior, resultadoActual) > errorMinimo; iteracion++)
+            int iteracion;
+            for (iteracion = 1; iteracion < cantidadIteraciones &&  errorActual > errorMinimo; iteracion++)
             {
                 resultadoAnterior = resultadoActual;
 
                 Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
 
                 resultadoActual = funcionAMinimizar.Evaluar();
+
+                errorActual = CalculoDeError(resultadoAnterior, resultadoActual);
             }
+
+            Debug.Log(iteracion);
         }
 
         private static void Iterar(IFuncionMinimizar funcionAMinimizar, INodo nodoBase, float evaluacionAnterior, float perturbacion, float mulpliciador)
@@ -47,6 +57,16 @@ namespace ItIsNotOnlyMe.InverseKinematics
         {
             foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
                 nodoActual.AplicarGradiente(multiplicador);
+        }
+
+        public static IValor Funcion(INodo nodoBase, IValor valorInicial)
+        {
+            IValor valorResultado = valorInicial;
+
+            foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
+                valorResultado = nodoActual.Transformar(valorResultado);
+
+            return valorResultado;
         }
 
         private static IEnumerable<INodo> CaminoDeNodos(INodo nodoBase)
