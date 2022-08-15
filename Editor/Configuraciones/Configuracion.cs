@@ -1,14 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ItIsNotOnlyMe.InverseKinematics
 {
-    public abstract class Configuracion : IConfiguracion
+    public abstract class Configuracion<TTipo> : IConfiguracion
     {
         private int _cantidadDeVariables;
         private float[] _gradiente;
 
-        public Configuracion(int cantidadDeVariables)
+        private ITransformacion<TTipo> _transformacion;
+        protected TTipo _valor;
+
+        public Configuracion(TTipo valor, ITransformacion<TTipo> transformacion, int cantidadDeVariables)
         {
+            _valor = valor;
+            _transformacion = transformacion;
+
             _cantidadDeVariables = cantidadDeVariables;
             _gradiente = new float[cantidadDeVariables];
         }
@@ -40,6 +47,12 @@ namespace ItIsNotOnlyMe.InverseKinematics
         {
             foreach (int numeroVariable in _numeroVariables)
                 this[numeroVariable] -= multiplicador * _gradiente[numeroVariable];
+        }
+
+        public IValor Transformar(IValor valor)
+        {
+            _transformacion.ActualizarEstado(_valor);
+            return _transformacion.Transformar(valor);
         }
     }
 }
