@@ -27,7 +27,7 @@ namespace ItIsNotOnlyMe.InverseKinematics
             IValor valorResultado = valorInicial;
 
             foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
-                valorResultado = nodoActual.Transladar(valorResultado);
+                valorResultado = nodoActual.Transformar(valorResultado);
 
             return valorResultado;
         }

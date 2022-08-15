@@ -6,7 +6,7 @@ namespace ItIsNotOnlyMe.InverseKinematics
     {
         public INodo NodoSiguiente { get; }
 
-        public IValor Transladar(IValor valor);
+        public IValor Transformar(IValor valor);
 
         public void CalcularGradiente(IFuncionMinimizar funcionAMinimizar, float evaluacionAnterior, float perturbacion);
 
