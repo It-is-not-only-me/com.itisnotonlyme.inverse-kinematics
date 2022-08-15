@@ -4,11 +4,19 @@
     {
         private static int _cantidadDeVariables = 1;
 
+        private float _distancia;
+
         public ConfiguracionLineal(float distancia, ITransformacion<float> transformacion) 
-            : base(distancia, transformacion, _cantidadDeVariables)
+            : base(transformacion, _cantidadDeVariables)
         {
+            _distancia = distancia;
         }
 
-        protected override float this[int i] { get => _valor; set => _valor = value; }
+        protected override float this[int i] { get => _distancia; set => _distancia = value; }
+
+        public override void ActualizarEstado(ITransformacion<float> transformacion)
+        {
+            transformacion.ActualizarEstado(_distancia);
+        }
     }
 }

@@ -6,23 +6,30 @@ namespace ItIsNotOnlyMe.InverseKinematics
     {
         private static int _cantidadDeVariables = 1;
 
-        private float _valorMinimo, _valorMaximo;
+        private float _rotacion;
+        private float _rotacionMinimo, _rotacionMaximo;
 
-        public ConfiguracionRotacionUnEjeLimitado(float valor, float minimo, float maximo, ITransformacion<float> transformacion)
-            : base(valor, transformacion, _cantidadDeVariables)
+        public ConfiguracionRotacionUnEjeLimitado(float rotacion, float minimo, float maximo, ITransformacion<float> transformacion)
+            : base(transformacion, _cantidadDeVariables)
         {
-            _valorMinimo = minimo;
-            _valorMaximo = maximo;
+            _rotacion = rotacion;
+            _rotacionMinimo = minimo;
+            _rotacionMaximo = maximo;
         }
 
         protected override float this[int i]
         {
-            get => _valor;
+            get => _rotacion;
             set
             {
-                float limitadoPorMaximo = Mathf.Min(value, _valorMaximo);
-                _valor = Mathf.Max(limitadoPorMaximo, _valorMinimo);
+                float limitadoPorMaximo = Mathf.Min(value, _rotacionMaximo);
+                _rotacion = Mathf.Max(limitadoPorMaximo, _rotacionMinimo);
             }
+        }
+
+        public override void ActualizarEstado(ITransformacion<float> transformacion)
+        {
+            transformacion.ActualizarEstado(_rotacion);
         }
     }
 }

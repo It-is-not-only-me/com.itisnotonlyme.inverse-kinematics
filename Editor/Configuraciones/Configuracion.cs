@@ -9,11 +9,9 @@ namespace ItIsNotOnlyMe.InverseKinematics
         private float[] _gradiente;
 
         private ITransformacion<TTipo> _transformacion;
-        protected TTipo _valor;
 
-        public Configuracion(TTipo valor, ITransformacion<TTipo> transformacion, int cantidadDeVariables)
+        public Configuracion(ITransformacion<TTipo> transformacion, int cantidadDeVariables)
         {
-            _valor = valor;
             _transformacion = transformacion;
 
             _cantidadDeVariables = cantidadDeVariables;
@@ -35,9 +33,10 @@ namespace ItIsNotOnlyMe.InverseKinematics
         {
             foreach (int numeroVariable in _numeroVariables)
             {
+                float valorVariableActual = this[numeroVariable];
                 this[numeroVariable] += perturbacion;
                 float evaluacionActual = funcionAMinimizar.Evaluar();
-                this[numeroVariable] -= perturbacion;
+                this[numeroVariable] = valorVariableActual;
 
                 _gradiente[numeroVariable] = (evaluacionActual - evaluacionAnterior) / perturbacion;
             }
@@ -51,8 +50,10 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         public IValor Transformar(IValor valor)
         {
-            _transformacion.ActualizarEstado(_valor);
+            ActualizarEstado(_transformacion);
             return _transformacion.Transformar(valor);
         }
+
+        public abstract void ActualizarEstado(ITransformacion<TTipo> transformacion);
     }
 }
