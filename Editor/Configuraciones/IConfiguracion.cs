@@ -2,9 +2,7 @@
 {
     public interface IConfiguracion
     {
-        public void Perturbar(float valor);
-
-        public void GuardarGradiente(float gradiente);
+        public void GuardarGradiente(IFuncionMinimizar funcionAMinimizar, float evaluacionAnterior, float perturbacion);
 
         public void AplicarGradiente(float multiplicador);
     }
