@@ -8,25 +8,27 @@ namespace ItIsNotOnlyMe.InverseKinematics
     {
         public static void Aplicar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo, float perturbacion, float multiplicador, int cantidadIteraciones, float errorMinimo)
         {
-            float resultadoAnterior = ValorMinimizar(nodoBase, valorInicial, valorObjetivo);
+            CalcularErrorDeEstadoActual funcionAMinimizar = new CalcularErrorDeEstadoActual(nodoBase, valorInicial, valorObjetivo);
 
-            Iterar(nodoBase, valorInicial, valorObjetivo, perturbacion, multiplicador);
+            float resultadoAnterior = funcionAMinimizar.Evaluar();
 
-            float resultadoActual = ValorMinimizar(nodoBase, valorInicial, valorObjetivo);
+            Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
+
+            float resultadoActual = funcionAMinimizar.Evaluar();
 
             for (int iteracion = 1; iteracion < cantidadIteraciones && CalculoDeError(resultadoAnterior, resultadoActual) > errorMinimo; iteracion++)
             {
                 resultadoAnterior = resultadoActual;
 
-                Iterar(nodoBase, valorInicial, valorObjetivo, perturbacion, multiplicador);
+                Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
 
-                resultadoActual = ValorMinimizar(nodoBase, valorInicial, valorObjetivo);
+                resultadoActual = funcionAMinimizar.Evaluar();
             }
         }
 
-        private static void Iterar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo, float perturbacion, float mulpliciador)
+        private static void Iterar(IFuncionMinimizar funcionAMinimizar, INodo nodoBase, float evaluacionAnterior, float perturbacion, float mulpliciador)
         {
-            CalcularGradiente(nodoBase, valorInicial, valorObjetivo, perturbacion);
+            CalcularGradiente(funcionAMinimizar, nodoBase, evaluacionAnterior, perturbacion);
             AplicarGradiente(nodoBase, mulpliciador);
         }
 
@@ -35,34 +37,16 @@ namespace ItIsNotOnlyMe.InverseKinematics
             return Mathf.Abs(resultadoActual - resultadoAnterior);
         }
 
-        private static void CalcularGradiente(INodo nodoBase, IValor valorIncial, IValor valorObjetivo, float perturbacion)
+        private static void CalcularGradiente(IFuncionMinimizar funcionAMinimizar, INodo nodoBase, float evaluacionAnterior, float perturbacion)
         {
             foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
-                nodoActual.CalcularGradiente(ValorMinimizar, nodoBase, valorIncial, valorObjetivo, perturbacion);
+                nodoActual.CalcularGradiente(funcionAMinimizar, evaluacionAnterior, perturbacion);
         }
 
         private static void AplicarGradiente(INodo nodoBase, float multiplicador)
         {
             foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
                 nodoActual.AplicarGradiente(multiplicador);
-        }
-
-        private static float ValorMinimizar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo)
-        {
-            IValor valorObtenido = Funcion(nodoBase, valorInicial);
-            IValor diferencia = valorObjetivo.Sumar(valorObtenido.Multiplicar(-1f));
-
-            return diferencia.Modulo();
-        }
-
-        private static IValor Funcion(INodo nodoBase, IValor valorInicial)
-        {
-            IValor valorResultado = valorInicial;
-
-            foreach (INodo nodoActual in CaminoDeNodos(nodoBase))
-                valorResultado = nodoActual.Transladar(valorResultado);
-
-            return valorResultado;
         }
 
         private static IEnumerable<INodo> CaminoDeNodos(INodo nodoBase)

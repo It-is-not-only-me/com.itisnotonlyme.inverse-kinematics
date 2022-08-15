@@ -8,7 +8,7 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         public IValor Transladar(IValor valor);
 
-        public void CalcularGradiente(Func<INodo, IValor, IValor, float> funcion, INodo nodoBase, IValor valorInicial, IValor valorObjetivo, float perturbacion);
+        public void CalcularGradiente(IFuncionMinimizar funcionAMinimizar, float evaluacionAnterior, float perturbacion);
 
         public void AplicarGradiente(float multiplicador);
     }
