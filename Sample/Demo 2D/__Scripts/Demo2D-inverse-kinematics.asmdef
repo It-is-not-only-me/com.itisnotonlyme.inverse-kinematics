@@ -1,5 +1,5 @@
 {
-    "name": "Demo-inverse-kinematics",
+    "name": "Demo2D-inverse-kinematics",
     "rootNamespace": "",
     "references": [
         "GUID:a40119970ace9ab4190bd91580188d8b"
