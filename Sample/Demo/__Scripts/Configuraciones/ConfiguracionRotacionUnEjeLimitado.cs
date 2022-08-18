@@ -32,6 +32,11 @@ namespace ItIsNotOnlyMe.InverseKinematics
             }
         }
 
+        public override void Perturbar(float perturbacion, int numeroVariable)
+        {
+            this[numeroVariable] += perturbacion;
+        }
+
         public override IValor Transformar(IValor valor)
         {
             Vector3 direccion = Quaternion.AngleAxis(_rotacion, _ejeDeRotacion) * _inicioDelAngulo;

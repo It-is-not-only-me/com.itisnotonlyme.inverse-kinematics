@@ -1,21 +1,20 @@
 ﻿using ItIsNotOnlyMe.InverseKinematics;
 using UnityEngine;
 
-public class ConfiguracionRotacionConPreferenciaPrueba : Configuracion
+public class ConfiguracionRotacionConRestriccionesPrueba : Configuracion
 {
     private static int _cantidadDeVariables = 1;
-    private static float _anguloMinimo = 0, _anguloMaximo = 2 * Mathf.PI;
+    private static float _anguloMinimo = 0f, _anguloMaximo = 2 * Mathf.PI;
 
     private float _rotacion;
-    private float _anguloPreferencia, _pesoDeInfluencia;
+    private float _rotacionMinima, _rotacionMaxima;
 
-    public ConfiguracionRotacionConPreferenciaPrueba(float rotacion, float anguloPreferencia, float pesoDeInfluencia)
+    public ConfiguracionRotacionConRestriccionesPrueba(float rotacion, float rotacionMinima, float rotacionMaxima)
         : base(_cantidadDeVariables)
     {
         _rotacion = rotacion;
-
-        _anguloPreferencia = anguloPreferencia;
-        _pesoDeInfluencia = pesoDeInfluencia;
+        _rotacionMinima = rotacionMinima;
+        _rotacionMaxima = rotacionMaxima;
     }
 
     public float Rotacion { get => _rotacion; }
@@ -23,16 +22,10 @@ public class ConfiguracionRotacionConPreferenciaPrueba : Configuracion
     protected override float this[int i] 
     { 
         get => _rotacion;
-        set
+        set 
         {
             float valorNuevo = MantenerEnRango(value);
-
-            float distanciaAlObjetivoPositivo = _anguloMaximo - valorNuevo + _anguloPreferencia;
-            float distanciaAlObjetivoNegativo = valorNuevo - _anguloPreferencia;
-
-            float direccion = (distanciaAlObjetivoPositivo < distanciaAlObjetivoNegativo) ? 1f : -1f;
-
-            _rotacion = MantenerEnRango((valorNuevo + _anguloPreferencia * _pesoDeInfluencia * direccion) / (1 + _pesoDeInfluencia));
+            _rotacion = Mathf.Max(_rotacionMinima, Mathf.Min(_rotacionMaxima, valorNuevo));
         }
     }
 
@@ -49,7 +42,7 @@ public class ConfiguracionRotacionConPreferenciaPrueba : Configuracion
         return valor;
     }
 
-    private bool EnRango(float valor)
+    public bool EnRango(float valor)
     {
         return _anguloMinimo < valor && valor < _anguloMaximo;
     }

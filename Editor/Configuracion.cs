@@ -31,7 +31,6 @@ namespace ItIsNotOnlyMe.InverseKinematics
             foreach (int numeroVariable in _numeroVariables)
             {
                 float derivadaParcial = DerivadaParcial(funcionAMinimizar, evaluacionAnterior, perturbacion, numeroVariable);
-                Debug.Log("La derivada parcial es: " + derivadaParcial);
                 _gradiente[numeroVariable] = derivadaParcial;
             }
         }
@@ -39,7 +38,7 @@ namespace ItIsNotOnlyMe.InverseKinematics
         private float DerivadaParcial(IFuncionMinimizar funcionAMinimizar, float evaluacionAnterior, float perturbacion, int numeroVariable)
         {
             float valorVariableActual = this[numeroVariable];
-            this[numeroVariable] += perturbacion;
+            Perturbar(perturbacion, numeroVariable);
             float evaluacionActual = funcionAMinimizar.Evaluar();
             this[numeroVariable] = valorVariableActual;
 
@@ -49,8 +48,12 @@ namespace ItIsNotOnlyMe.InverseKinematics
         public void AplicarGradiente(float multiplicador)
         {
             foreach (int numeroVariable in _numeroVariables)
+            {
                 this[numeroVariable] -= multiplicador * _gradiente[numeroVariable];
+            }
         }
+
+        public abstract void Perturbar(float perturbacion, int numeroVariable);
 
         public abstract IValor Transformar(IValor valor);
     }

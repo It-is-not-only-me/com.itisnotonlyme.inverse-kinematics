@@ -16,6 +16,11 @@ public class ConfiguracionDistanciaFijaPrueba : Configuracion
 
     protected override float this[int i] { get => throw new System.IndexOutOfRangeException(); set => throw new System.IndexOutOfRangeException(); }
 
+    public override void Perturbar(float perturbacion, int numeroVariable)
+    {
+        this[numeroVariable] += perturbacion;
+    }
+
     public override IValor Transformar(IValor valor)
     {
         return (valor as IValorPrueba).Extender(_longitud);

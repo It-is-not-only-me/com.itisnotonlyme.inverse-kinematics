@@ -16,6 +16,11 @@ public class ConfiguracionRotacionPrueba : Configuracion
 
     protected override float this[int i] { get => _rotacion; set => _rotacion = value; }
 
+    public override void Perturbar(float perturbacion, int numeroVariable)
+    {
+        this[numeroVariable] += perturbacion;
+    }
+
     public override IValor Transformar(IValor valor)
     {
         return (valor as IValorPrueba).Rotar(_rotacion);

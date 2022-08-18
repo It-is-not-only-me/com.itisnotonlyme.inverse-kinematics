@@ -16,6 +16,11 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         protected override float this[int i] { get => throw new ArgumentOutOfRangeException(); set => throw new ArgumentOutOfRangeException(); }
 
+        public override void Perturbar(float perturbacion, int numeroVariable)
+        {
+            this[numeroVariable] += perturbacion;
+        }
+
         public override IValor Transformar(IValor valor)
         {
             return (valor as IValorVector).Extender(_longitud);

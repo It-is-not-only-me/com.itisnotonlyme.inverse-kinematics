@@ -14,6 +14,11 @@
 
         protected override float this[int i] { get => _distancia; set => _distancia = value; }
 
+        public override void Perturbar(float perturbacion, int numeroVariable)
+        {
+            this[numeroVariable] += perturbacion;
+        }
+
         public override IValor Transformar(IValor valor)
         {
             return (valor as IValorVector).Extender(_distancia);

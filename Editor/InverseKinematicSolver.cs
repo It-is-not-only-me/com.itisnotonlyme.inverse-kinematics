@@ -4,47 +4,54 @@ using UnityEngine;
 
 namespace ItIsNotOnlyMe.InverseKinematics
 {
+    public class InverseKinematics
+    {
+        private float _perturbacion, _multiplicador, _errorMinimo;
+        private int _cantidadIteraciones;
+
+        public InverseKinematics(float perturbacion, float multiplicador, int cantidadIteraciones, float errorMinimo)
+        {
+            _perturbacion = perturbacion;
+            _multiplicador = multiplicador;
+            _cantidadIteraciones = cantidadIteraciones;
+            _errorMinimo = errorMinimo;
+        }
+
+        public int Aplicar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo)
+        {
+            return InverseKinematicSolver.Aplicar(nodoBase, valorInicial, valorObjetivo, _perturbacion, _multiplicador, _cantidadIteraciones, _errorMinimo);
+        }
+    }
+
     public static class InverseKinematicSolver
     {
-        public static void Aplicar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo, float perturbacion, float multiplicador, int cantidadIteraciones, float errorMinimo)
+        public static int Aplicar(INodo nodoBase, IValor valorInicial, IValor valorObjetivo, float perturbacion, float multiplicador, int cantidadIteraciones, float errorMinimo)
         {
             CalcularErrorDeEstadoActual funcionAMinimizar = new CalcularErrorDeEstadoActual(nodoBase, valorInicial, valorObjetivo);
+            int numeroDeIteraciones = 0;
 
             float resultadoAnterior = funcionAMinimizar.Evaluar();
 
             if (resultadoAnterior < errorMinimo)
-                return;
+                return numeroDeIteraciones;
 
             Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
+            resultadoAnterior = funcionAMinimizar.Evaluar();
+            numeroDeIteraciones++;
 
-            float resultadoActual = funcionAMinimizar.Evaluar();
-            float errorActual = CalculoDeError(resultadoAnterior, resultadoActual);
-            Debug.Log(errorActual);
-
-            int iteracion;
-            for (iteracion = 1; iteracion < cantidadIteraciones &&  errorActual > errorMinimo; iteracion++)
+            for (; numeroDeIteraciones < cantidadIteraciones && resultadoAnterior > errorMinimo; numeroDeIteraciones++)
             {
-                resultadoAnterior = resultadoActual;
-
                 Iterar(funcionAMinimizar, nodoBase, resultadoAnterior, perturbacion, multiplicador);
-
-                resultadoActual = funcionAMinimizar.Evaluar();
-
-                errorActual = CalculoDeError(resultadoAnterior, resultadoActual);
+                resultadoAnterior = funcionAMinimizar.Evaluar();
             }
 
-            Debug.Log(iteracion);
+            return numeroDeIteraciones;
         }
 
         private static void Iterar(IFuncionMinimizar funcionAMinimizar, INodo nodoBase, float evaluacionAnterior, float perturbacion, float mulpliciador)
         {
             CalcularGradiente(funcionAMinimizar, nodoBase, evaluacionAnterior, perturbacion);
             AplicarGradiente(nodoBase, mulpliciador);
-        }
-
-        private static float CalculoDeError(float resultadoAnterior, float resultadoActual)
-        {
-            return Mathf.Abs(resultadoActual - resultadoAnterior);
         }
 
         private static void CalcularGradiente(IFuncionMinimizar funcionAMinimizar, INodo nodoBase, float evaluacionAnterior, float perturbacion)

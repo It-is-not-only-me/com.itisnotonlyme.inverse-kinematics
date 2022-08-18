@@ -31,9 +31,7 @@ public class ValorPrueba : IValorPrueba
 
     public IValor Extender(float distancia)
     {
-        float radianes = _rotacion * Mathf.Deg2Rad;
-        Vector2 direccion = new Vector2(Mathf.Cos(radianes), Mathf.Sin(radianes));
-
+        Vector2 direccion = new Vector2(Mathf.Cos(_rotacion), Mathf.Sin(_rotacion));
         return new ValorPrueba(_posicion + direccion * distancia, _rotacion);
     }
 

@@ -17,6 +17,11 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         protected override float this[int i] { get => _direccion[i]; set => _direccion[i] = value; }
 
+        public override void Perturbar(float perturbacion, int numeroVariable)
+        {
+            this[numeroVariable] += perturbacion * 360;
+        }
+
         public override IValor Transformar(IValor valor)
         {
             return (valor as IValorVector).Rotar(_direccion);

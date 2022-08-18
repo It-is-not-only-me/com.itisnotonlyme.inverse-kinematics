@@ -20,6 +20,11 @@ public class ConfiguracionMovimientoLinealLimitadoPrueba : Configuracion
 
     protected override float this[int i] { get => _distancia; set => _distancia = Mathf.Max(_distanciaMinima, Mathf.Min(_distanciaMaxima, value)); }
 
+    public override void Perturbar(float perturbacion, int numeroVariable)
+    {
+        this[numeroVariable] += perturbacion;
+    }
+
     public override IValor Transformar(IValor valor)
     {
         return (valor as IValorPrueba).Extender(_distancia);
