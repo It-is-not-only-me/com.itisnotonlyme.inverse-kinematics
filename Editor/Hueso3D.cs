@@ -34,8 +34,7 @@ namespace ItIsNotOnlyMe.InverseKinematics
 
         public Vector3 Extremo()
         {
-            Quaternion rotacion = Rotacion;
-            Vector3 direccion = new Vector3(rotacion.y, rotacion.z, rotacion.w);
+            Rotacion.ToAngleAxis(out float _, out Vector3 direccion);
             return Posicion + direccion * _longitud;
         }
     }
